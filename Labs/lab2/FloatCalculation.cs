@@ -15,33 +15,11 @@ namespace Labs.lab2
             int algoStepsCount,
             double epsilon
             ) : base(
-                create(
-                    minValue,
-                    maxValue,
-                    function,
-                    mutationChance,
-                    epsilon
-                ),
-                populationSize
+                algorithm: new FloatAlgo(function, minValue, maxValue, mutationChance, epsilon),
+                populationSize: populationSize
             )
         {
             this.algoStepsCount = algoStepsCount;
-        }
-
-        private static GeneticAlgorithm<double, double> create(
-            long minValue,
-            long maxValue,
-            Func<double, double> function,
-            double mutationChance,
-            double epsilon)
-        {
-            Function<double, double> func = new Function<double, double>(
-                minXValue: minValue,
-                maxXValue: maxValue,
-                function: function
-            );
-
-            return new FloatAlgo(func, mutationChance, epsilon);
         }
 
         protected override bool isEndOfAlgorithm(Individual<double>[] population)

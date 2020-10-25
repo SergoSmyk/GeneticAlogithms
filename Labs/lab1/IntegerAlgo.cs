@@ -1,36 +1,28 @@
 ﻿using Labs.api;
+using System;
 using System.Linq;
 
 namespace Labs.lab1
 {
     class IntegerAlgo : GeneticAlgorithm<long, double>
     {
-        public IntegerAlgo(Function<long, double> function, double mutationChance) : base(function, mutationChance) { }
+        private Func<long, double> func;
+
+        private long minValue;
+
+        private long maxValue;
+        public IntegerAlgo(Func<long, double> function, long minValue, long maxValue, double mutationChance) : base(mutationChance)
+        {
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            func = function;
+        }
 
         protected override Individual<long> createIndividual(long value) => new Individual<long>(value);
 
         protected override Individual<long>[] createPopulation(int size) => new Individual<long>[size];
 
-        protected override long createRandomValue(long minValue, long maxValue) => Tools.LongRandom(minValue, maxValue, rand);
-
-        public override Individual<long> findBestIndividual(Individual<long>[] population)
-        {
-            calculateChances(population);
-
-            if (population.Length == 0)
-            {
-                return null;
-            }
-
-            var best = population[0];
-
-            for (int i = 1; i < population.Length; i++)
-            {
-                best = getBestIndividual(best, population[i]);
-            }
-
-            return best;
-        }
+        protected override long createRandomValue() => Tools.LongRandom(minValue, maxValue, rand);       
 
         public override Individual<long> getBestIndividual(Individual<long> first, Individual<long> second)
         {
@@ -42,17 +34,9 @@ namespace Labs.lab1
             return second;
         }
 
-        public override void calculateChances(params Individual<long>[] population)
-        {
-            for (int i = 0; i < population.Length; i++)
-            {
-                calculateChance(ref population[i]);
-            }
-        }
-
         public override void calculateChance(ref Individual<long> item)
         {
-            item.Chance = func.execute(item.Value);
+            item.Chance = func.Invoke(item.Value);
         }
 
         public override double averageChance(Individual<long>[] population)
@@ -66,8 +50,8 @@ namespace Labs.lab1
                 a: parent1.Value,
                 b: parent2.Value,
                 rand: rand,
-                min: func.MinXValue,
-                max: func.MaxXValue);
+                min: minValue,
+                max: maxValue);
 
 
             return createIndividual(childValue);
@@ -78,30 +62,10 @@ namespace Labs.lab1
             long mutatedValue = Tools.mutateValue(
                 value: child.Value,
                 rand: rand,
-                min: func.MinXValue,
-                max: func.MaxXValue);
+                min: minValue,
+                max: maxValue);
 
             child.mutateValue(mutatedValue);
-        }
-
-        public override Individual<long>[] generateChildren(Individual<long>[] population)
-        {
-            calculateChances(population);
-            var newPopulation = createPopulation(population.Length);
-            for (int i = 0; i < population.Length; i++)
-            {
-                var randParent1 = findRandomIndividualByChance(population);
-                var randParent2 = findRandomIndividualByChance(population);
-                newPopulation[i] = makeChild(randParent1, randParent2);
-
-                if (rand.NextDouble() <= mutationChance)
-                {
-                    mutateChild(ref newPopulation[i]);
-                    calculateChance(ref newPopulation[i]);
-                }
-            }
-
-            return newPopulation;
-        }
+        }        
     }
 }

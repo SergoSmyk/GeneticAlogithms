@@ -14,31 +14,11 @@ namespace Labs.lab1
             int populationSize,
             int algoStepsCount
             ) : base(
-                create(
-                    minValue,
-                    maxValue,
-                    function,
-                    mutationChance
-                ),
-                populationSize
+                algorithm: new IntegerAlgo(function, minValue, maxValue, mutationChance),               
+                populationSize: populationSize
             )
         {
             this.algoStepsCount = algoStepsCount;
-        }
-
-        private static GeneticAlgorithm<long, double> create(
-            long minValue,
-            long maxValue,
-            Func<long, double> function,
-            double mutationChance)
-        {
-            Function<long, double> func = new Function<long, double>(
-                minXValue: minValue,
-                maxXValue: maxValue,
-                function: function
-            );
-
-            return new IntegerAlgo(func, mutationChance);
         }
 
         protected override bool isEndOfAlgorithm(Individual<long>[] population)

@@ -1,13 +1,20 @@
 ﻿using Labs.api;
+using System;
 using System.Linq;
 
 namespace Labs.lab2
 {
     class FloatAlgo : GeneticAlgorithm<double, double>
     {
+        private Func<double, double> func;
         private double epsilon;
-        public FloatAlgo(Function<double, double> function, double mutationChance, double epsilon) : base(function, mutationChance)
+        private double minValue;
+        private double maxValue;
+        public FloatAlgo(Func<double, double> func, double minValue, double maxValue, double mutationChance, double epsilon) : base(mutationChance)
         {
+            this.func = func;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
             this.epsilon = epsilon;
         }
 
@@ -15,31 +22,12 @@ namespace Labs.lab2
 
         protected override Individual<double>[] createPopulation(int size) => new Individual<double>[size];
 
-        protected override double createRandomValue(double minValue, double maxValue)
+        protected override double createRandomValue()
         {
             var randDouble = Tools.DoubleRandom(minValue, maxValue, rand);
 
             return randDouble - randDouble % epsilon;
-        }
-
-        public override Individual<double> findBestIndividual(Individual<double>[] population)
-        {
-            calculateChances(population);
-
-            if (population.Length == 0)
-            {
-                return null;
-            }
-
-            var best = population[0];
-
-            for (int i = 1; i < population.Length; i++)
-            {
-                best = getBestIndividual(best, population[i]);
-            }
-
-            return best;
-        }
+        }       
 
         public override Individual<double> getBestIndividual(Individual<double> first, Individual<double> second)
         {
@@ -50,18 +38,10 @@ namespace Labs.lab2
 
             return second;
         }
-
-        public override void calculateChances(params Individual<double>[] population)
-        {
-            for (int i = 0; i < population.Length; i++)
-            {
-                calculateChance(ref population[i]);
-            }
-        }
-
+  
         public override void calculateChance(ref Individual<double> item)
         {
-            item.Chance = func.execute(item.Value);
+            item.Chance = func.Invoke(item.Value);
         }
 
         public override double averageChance(Individual<double>[] population)
@@ -78,8 +58,8 @@ namespace Labs.lab2
                 a: parentBase1,
                 b: parentBase2,
                 rand: rand,
-                min: (long)(func.MinXValue / epsilon),
-                max: (long)(func.MaxXValue / epsilon));
+                min: (long)(minValue / epsilon),
+                max: (long)(maxValue / epsilon));
 
             return createIndividual(childBase * epsilon);
         }
@@ -91,30 +71,10 @@ namespace Labs.lab2
             long mutatedValue = Tools.mutateValue(
                 value: childBase,
                 rand: rand,
-                min: (long)(func.MinXValue / epsilon),
-                max: (long)(func.MaxXValue / epsilon));
+                min: (long)(minValue / epsilon),
+                max: (long)(maxValue / epsilon));
 
             child.mutateValue(mutatedValue * epsilon);
-        }
-
-        public override Individual<double>[] generateChildren(Individual<double>[] population)
-        {
-            calculateChances(population);
-            var newPopulation = createPopulation(population.Length);
-            for (int i = 0; i < population.Length; i++)
-            {
-                var randParent1 = findRandomIndividualByChance(population);
-                var randParent2 = findRandomIndividualByChance(population);
-                newPopulation[i] = makeChild(randParent1, randParent2);
-
-                if (rand.NextDouble() <= mutationChance || randParent1.Value == randParent2.Value)
-                {
-                    mutateChild(ref newPopulation[i]);
-                    calculateChance(ref newPopulation[i]);
-                }
-            }
-
-            return newPopulation;
         }
     }
 }

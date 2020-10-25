@@ -1,6 +1,7 @@
 ﻿using Labs.api;
 using Labs.lab1;
 using Labs.lab2;
+using Labs.lab3;
 using System;
 
 namespace Labs
@@ -51,6 +52,9 @@ namespace Labs
                 case 2:
                     runLab2();
                     break;
+                case 3:
+                    runLab3();
+                    break;
                 default:
                     Log.console("Unsuported variant");
                     break;
@@ -81,7 +85,7 @@ namespace Labs
 
             var result = calc.runAlgorithm();
 
-            Console.WriteLine("Best x: {0}", result.Value);
+            Log.console("Best x: {0}", result.Value);
         }
 
         private static void runLab2()
@@ -98,7 +102,30 @@ namespace Labs
 
             var result = calc.runAlgorithm();
 
-            Console.WriteLine("Best x: {0}", result.Value);
+            Log.console("Best x: {0}", result.Value);
+        }
+
+        private static void runLab3()
+        {
+            var entities = new Entity[]{
+                    new Entity(5, 5),
+                    new Entity(4, 4),
+                    new Entity(3, 3),
+                    new Entity(2, 2),
+                    new Entity(1, 1),
+                };
+
+            var calc = new BackpackProblemCalculations(
+                mutationChance: 0.1,
+                algoStepsCount: 10_000,
+                populationSize: 10,
+                maxVolume: 13,
+                entities: entities
+                );
+
+            var result = calc.runAlgorithm();
+
+            Log.console(result.Value.getFormatedString(entities));
         }
     }
 }

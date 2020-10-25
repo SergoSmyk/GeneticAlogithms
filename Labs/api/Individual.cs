@@ -10,7 +10,7 @@ namespace Labs.api
             get { return value; }
         }
 
-        private double chance = 0;
+        private double chance;
 
         public double Chance
         {
