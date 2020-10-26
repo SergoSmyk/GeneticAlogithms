@@ -76,11 +76,11 @@ namespace Labs
         {
             var calc = new IntegersCalculation(
                 mutationChance: 0.1,
-                algoStepsCount: 10_000,
+                algoStepsCount: 60,
                 populationSize: 20,
                 minValue: -10_000,
                 maxValue: 10_000,
-                function: x => x
+                function: x => -(x * x)
                 );
 
             var result = calc.runAlgorithm();
